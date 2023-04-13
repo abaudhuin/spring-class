@@ -160,9 +160,187 @@ Often, we have 3 layers:
 
 ---
 
-# Lab
+# Lab 1
 
 - Create a TODO app
 - Multiple endpoints CRUD
 - A service with business logic
 - Tests
+
+---
+
+# Questions from the previous lab ?
+
+---
+
+# Today's topics
+
+- Dockerize a Spring Boot app
+- Spring Data JPA & Database
+
+---
+
+# Docker
+
+- A containerization platform
+- Lightweight virtualization
+- Containers are isolated from the host
+- Backbone of microservices and serverless
+
+![bg right:40% 80%](images/docker.png)
+
+---
+
+# Docker image
+
+- A template to create a container
+- Contains the application and its dependencies
+- Can be run on any machine
+- [Docker hub](https://hub.docker.com/) is a registry of images (like GitHub for code)
+
+---
+
+# Dockerfile
+
+- A file to build a Docker image
+- Contains instructions to build the image
+
+```dockerfile
+# Use the official image as a parent image.
+FROM openjdk:8-jdk-alpine
+
+# Copy useful files from your host to your image filesystem.
+COPY target/*.jar app.jar
+
+# Command to run the executable when the container starts.
+ENTRYPOINT ["java","-jar","/app.jar"]
+```
+
+---
+
+# Running a Docker container
+
+- We can run any images: `docker run mysql`
+- To build an image from a Dockerfile: `docker build -t my-image .`
+- We can run our own images: `docker run my-image`
+
+---
+
+# [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
+
+- An ORM library based on Hibernate
+- Connects to a lot of databases (MySQL, PostgreSQL, NoSQL, etc.)
+- A set of annotations to map Java objects to database tables
+- Simple interface to create queries
+
+---
+
+# In practice: Entity
+
+```java
+@Entity
+public class MyObject {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  private String name;
+}
+```
+
+---
+
+# In practice: CrudRepository
+
+```java
+@Repository
+public interface MyRepository extends CrudRepository<MyObject, Long> {
+  @Query("SELECT o FROM MyObject o WHERE o.name = :name")
+  List<MyObject> findByName(@Param("name") String name);
+}
+```
+
+By default, Spring Data JPA will already implements these queries:
+
+- Find all
+- Find by id
+- Save
+- Delete
+
+---
+
+# In practice: JpaRepository
+
+```java
+@Repository
+public interface MyRepository extends JpaRepository<MyObject, Long> {
+  List<MyObject> findByName(String name);
+}
+```
+
+Based on the name of the method, Spring Data JPA will automatically generate the query!
+
+---
+
+# Let's do it
+
+- Add the dependency
+- Configure the database
+- Create a model
+- Create a repository
+
+---
+
+# Advanced feature: Pagination
+
+- We don't want to return all the objects in the database
+- We need to do `/my-objects?page=0&size=10`
+
+In Spring Data JPA, the `Pageable` interface handles this for us.
+
+```java
+Page<MyObject> findAll(Pageable pageable);
+```
+
+---
+
+
+# Testing
+
+- We want to test the service, not the database
+- We can use in-memory databases
+- We can use mocks to test the service in isolation
+
+---
+
+# Mocking
+
+By default, Spring uses the Mockito library to mock dependencies.
+
+```java
+class MyServiceTest {
+  @MockBean
+  private MyRepository repository;
+
+  @Autowired
+  private MyService service;
+
+  @Test
+  void test() {
+    MyObject object = new MyObject();
+    when(repository.findByName("name")).thenReturn(List.of(object));
+
+    List<MyObject> result = service.findByName("name");
+
+    assertThat(result).containsExactly(object);
+  }
+}
+```
+
+---
+
+# Lab 2
+
+- Dockerize the TODO app
+- Use Mysql with Spring Data JPA for your TODO app
+- Connected four with a database !
