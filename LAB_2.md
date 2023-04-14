@@ -19,7 +19,7 @@ docker run hello-world
 ### Docker image
 
 Let's create a docker image for our app.
-To do so, we will create a ne file: `Dockerfile`
+To do so, we will create a ne file `Dockerfile` at the root of the project.
 
 ```dockerfile
 # Base image from https://hub.docker.com/_/openjdk
@@ -46,12 +46,14 @@ docker build -t todo .
 Finally, you can run the docker image using:
 
 ```bash
-docker run -p 8080:8080 --load todo
+docker run -p 8080:8080 todo
 ```
 
 You can use access it like before: http://localhost:8080.
 
 You could use this docker image to deploy your app on any server, hosting service or cloud provider!
+
+For the rest of the lab, you can go back to using the app directly from your IDE.
 
 ## Accessing the database from the app
 
@@ -71,6 +73,12 @@ Once mysql is installed, you can test it's working by connecting to it using the
 
 ```bash
 mysql -h 127.0.0.1 -u root -p
+```
+
+If you don't have it locally you can use your docker image: 
+
+```bash
+docker run -it --network host --rm mysql mysql -h 127.0.0.1 -u root -p
 ```
 
 ### Add Spring Data
@@ -302,3 +310,11 @@ I can think of a lot of features that you can add to the game thanks to the data
 - Play against the computer
 
 ### Using the frontend
+
+You can find the frontend in the `frontend` folder of this repository.
+
+It's a really simple (understand ugly) frontend that you can use to play the game. You can copy the files in the `src/main/resources/static` folder of your project. it will be served at the root of your API.
+
+You will probably need to adapt the main.js file base on your own API design.
+
+Good luck!
